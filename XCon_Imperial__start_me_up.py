@@ -47,22 +47,25 @@ class window(Ui_XCon_Imperial):
         self.doubleSpinBox_lock_blue_1_alpha.setMaximum(params['lock']['b1_alpha_max'])
         self.doubleSpinBox_lock_blue_1_beta.setValue(params['lock']['b1_beta'])
         self.doubleSpinBox_lock_blue_1_beta.setMaximum(params['lock']['b1_beta_max'])
+        
+        self.plots = {}
 
         #---------------------------------------------------------------------#
         #--- PLOTS, PUSH BUTTONS AND TIMERS FOR LASER BLUE 1 -----------------#
-        #---------------------------------------------------------------------#        
-        self.plot_nu_blue_1 = pg.PlotWidget(name = 'widget_plot_nu_blue_1')
-        self.plot_nu_blue_1.setBackground(background = brush_background)
-        self.plot_nu_blue_1.setLabel('left', 'nu', units = '[THz]', **labelstyle_L)
-        self.plot_nu_blue_1.setLabel('bottom', 'time', units = '', **labelstyle_L)
-        self.plot_nu_blue_1.showGrid(x = True, y = True)
+        #---------------------------------------------------------------------#
+        self.plots['blue_1'] = pg.PlotWidget(name = 'widget_plot_nu_blue_1')
+        self.plots['blue_1'].setBackground(background = brush_background)
+        self.plots['blue_1'].setLabel('left', 'nu', units = '[THz]', **labelstyle_L)
+        self.plots['blue_1'].setLabel('bottom', 'time', units = '', **labelstyle_L)
+        self.plots['blue_1'].showGrid(x = True, y = True)
         
-        self.verticalLayout_nu_laser_blue_1.addWidget(self.plot_nu_blue_1)
+        self.verticalLayout_nu_laser_blue_1.addWidget(self.plots['blue_1'])
         #---------------------------------------------------------------------#
 
         #---------------------------------------------------------------------#   
-        self.pushButton_lock_laser_blue_1_on.clicked.connect(self.pushButton_lock_laser_blue_1_on_clicked)
-        self.pushButton_lock_laser_blue_1_off.clicked.connect(self.pushButton_lock_laser_blue_1_off_clicked)
+        #self.pushButton_lock_laser_blue_1_on.clicked.connect(self.pushButton_lock_laser_blue_1_on_clicked)
+        self.pushButton_lock_laser_blue_1_on.clicked.connect(lambda: self.pushButton_lock_laser_on_clicked('blue_1'))
+        self.pushButton_lock_laser_blue_1_off.clicked.connect(lambda: self.pushButton_lock_laser_off_clicked('blue_1'))
         
         self.pushButton_smooth_change_laser_blue_1_start.clicked.connect(self.pushButton_smooth_change_laser_blue_1_start_clicked)
         self.pushButton_smooth_change_laser_blue_1_stop.clicked.connect(self.pushButton_smooth_change_laser_blue_1_stop_clicked)
@@ -72,7 +75,7 @@ class window(Ui_XCon_Imperial):
         self.timer_t_dependent_plots_laser_blue_1 = QtCore.QTimer()
         self.timer_t_dependent_plots_laser_blue_1.setInterval(250)
         self.timer_t_dependent_plots_laser_blue_1.setTimerType(QtCore.Qt.PreciseTimer)
-        self.timer_t_dependent_plots_laser_blue_1.timeout.connect(self.t_dependent_updates_laser_blue_1)
+        self.timer_t_dependent_plots_laser_blue_1.timeout.connect(lambda: self.t_dependent_updates_laser('blue_1'))
         self.timer_t_dependent_plots_laser_blue_1.start()
         #---------------------------------------------------------------------#
 
@@ -213,16 +216,20 @@ class window(Ui_XCon_Imperial):
     ###########################################################################
     ### FUNCTIONS FOR LASER BLUE 1 ############################################
     ###########################################################################           
-        
+    
+    def get_spinBox(self, spinBox_name):
+        return self.groupBox.findChild(QtWidgets.QDoubleSpinBox, spinBox_name)
+    
+    def get_label(self, label_name):
+        return self.groupBox.findChild(QtWidgets.QLabel, label_name)
+    
     ###########################################################################
-    def pushButton_lock_laser_blue_1_on_clicked(self):
-        lc.nu_blue_1_want = float(self.doubleSpinBox_nu_blue_1_want.value())
-        lc.nu_setpoint['blue_1'] = float(self.doubleSpinBox_nu_blue_1_want.value())
-        lc.lock_laser_blue_1_on()
-                
+    def pushButton_lock_laser_on_clicked(self, laser_id):
+        lc.nu_setpoint[laser_id] = float(self.get_spinBox(f'doubleSpinBox_nu_{laser_id}_want').value())
+        lc.lock_laser_on(laser_id)                
         
-    def pushButton_lock_laser_blue_1_off_clicked(self):
-        lc.lock_laser_blue_1_off()
+    def pushButton_lock_laser_off_clicked(self, laser_id):
+        lc.lock_laser_off(laser_id)
         
         
     def pushButton_smooth_change_laser_blue_1_start_clicked(self):
@@ -235,37 +242,32 @@ class window(Ui_XCon_Imperial):
     ###########################################################################   
         
     ###########################################################################        
-    def t_dependent_updates_laser_blue_1(self):
+    def t_dependent_updates_laser(self, laser_id):
+        self.get_label(f'label_nu_{laser_id}_is').setText(f'{lc.nu[laser_id]:.7f}')
+                
+        lc.lock_pars['blue_1']['k_p'] = float(self.get_spinBox(f'doubleSpinBox_lock_{laser_id}_alpha').value())
+        lc.lock_pars['blue_1']['k_i'] = float(self.get_spinBox(f'doubleSpinBox_lock_{laser_id}_beta').value())
         
-        self.label_nu_blue_1_is.setText(f'{lc.nu_blue_1_is:.7f}')
-        
-#        self.doubleSpinBox_nu_blue_1_want.setValue(lc.nu_blue_1_want)
-           
-        lc.lock_blue_1_alpha = float(self.doubleSpinBox_lock_blue_1_alpha.value())
-        lc.lock_blue_1_beta = float(self.doubleSpinBox_lock_blue_1_beta.value())
-        
-        lc.lock_pars['blue_1']['k_p'] = float(self.doubleSpinBox_lock_blue_1_alpha.value())
-        lc.lock_pars['blue_1']['k_i'] = float(self.doubleSpinBox_lock_blue_1_beta.value())
-        
-        if lc.lock_blue_1:
-            self.label_lock_blue_1_status.setText('ON')
-            self.label_lock_blue_1_status.setStyleSheet('color: black')
+        lock_status_label = self.get_label(f'label_lock_{laser_id}_status')
+        if lc.lock_lasers[laser_id]:
+            lock_status_label.setText('ON')
+            lock_status_label.setStyleSheet('color: black')
         else:
-            self.label_lock_blue_1_status.setText('OFF')
-            self.label_lock_blue_1_status.setStyleSheet('color: red')
+            lock_status_label.setText('OFF')
+            lock_status_label.setStyleSheet('color: red')
        
         try:
-            self.plot_nu_blue_1.plot(np.arange(500),lc.nu_blue_1_was[-500:],pen = blackPen, symbol = 'o', symbolBrush = blueBrush, name = 'nu_blue_1_was', clear = True)
+            self.plot[laser_id].plots(np.arange(500),lc.nu_history[laser_id][-500:],pen = blackPen, symbol = 'o', symbolBrush = blueBrush, name = f'nu_{laser_id}_was', clear = True)
         except Exception:
             pass
             
-        nu_blue_1_upper = pg.PlotCurveItem([0,500],[755.186881,755.186881],pen = bluePen)
-        nu_blue_1_lower = pg.PlotCurveItem([0,500],[755.186879,755.186879],pen = bluePen)
-        nu_blue_1_fill = pg.FillBetweenItem(nu_blue_1_upper,nu_blue_1_lower,blueBrush_alpha)
+        #nu_blue_1_upper = pg.PlotCurveItem([0,500],[755.186881,755.186881],pen = bluePen)
+        #nu_blue_1_lower = pg.PlotCurveItem([0,500],[755.186879,755.186879],pen = bluePen)
+        #nu_blue_1_fill = pg.FillBetweenItem(nu_blue_1_upper,nu_blue_1_lower,blueBrush_alpha)
         
-        self.plot_nu_blue_1.addItem(nu_blue_1_upper)
-        self.plot_nu_blue_1.addItem(nu_blue_1_lower)
-        self.plot_nu_blue_1.addItem(nu_blue_1_fill)        
+        #self.plot_nu_blue_1.addItem(nu_blue_1_upper)
+        #self.plot_nu_blue_1.addItem(nu_blue_1_lower)
+        #self.plot_nu_blue_1.addItem(nu_blue_1_fill)        
     ###########################################################################    
         
 

@@ -75,6 +75,7 @@ class laser_control(object):
         
         #--- FREQUENCY Parameters --------------------------------------------#
         self.nu_blue_1_was, self.nu_blue_2_was, self.nu_red_1_was, self.nu_red_2_was = [0]*500, [0]*500, [0]*500, [0]*500
+        self.nu_history = {'blue_1': [0]*500, 'blue_2': [0]*500, 'red_1': [0]*500, 'red_2': [0]*500}
         
         self.nu_blue_1_is, self.nu_blue_2_is, self.nu_red_1_is, self.nu_red_2_is = 0.0, 0.0, 0.0, 0.0
         self.nu = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0}
@@ -96,13 +97,15 @@ class laser_control(object):
         
         #--- LOCKING Parameters ----------------------------------------------#
         self.lock_blue_1 = False
+        self.lock_lasers = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False}
         self.lock_blue_2_flag, self.lock_red_1_flag, self.lock_red_2_flag = 1, 1, 1
         
         self.lock_blue_1_alpha, self.lock_blue_2_alpha, self.lock_red_1_alpha, self.lock_red_2_alpha = 20., 20., 20., 20.    
         self.lock_blue_1_beta, self.lock_blue_2_beta, self.lock_red_1_beta, self.lock_red_2_beta = 15., 15., 15., 15.
         
         default_lock_pars = {'k_p': 20, 'k_i': 20}
-        self.lock_pars = {'blue_1': default_lock_pars.copy(), 'blue_2': default_lock_pars.copy()}
+        self.lock_pars = {'blue_1': default_lock_pars.copy(), 'blue_2': default_lock_pars.copy(),
+                          'red_1': default_lock_pars.copy(), 'red_2': default_lock_pars.copy()}
         
         self.lock_blue_1_Integral, self.lock_blue_2_Integral, self.lock_red_1_Integral, self.lock_red_2_Integral = 0.0, 0.0, 0.0, 0.0   
         
@@ -110,6 +113,7 @@ class laser_control(object):
       
         #Lock error counters
         self.lock_blue_1_count, self.lock_blue_2_count, self.lock_red_1_count, self.lock_red_2_count = 0, 0, 0, 0
+        self.lock_count = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0}
         #---------------------------------------------------------------------#
 
         #--- SAWTOOTH Parameters ---------------------------------------------#
@@ -198,8 +202,8 @@ class laser_control(object):
     def control_loop(self):
         self.get_data_HF_WM()
         
-        if self.lock_blue_1:
-            self.lock_laser_blue_1()
+        if self.lock_lasers['blue_1']:
+            self.lock_laser('blue_1')
 
     ###########################################################################
     ### FUNCTION TO GET THE WAVEMETER DATA ####################################
@@ -221,6 +225,8 @@ class laser_control(object):
         
         self.nu['blue_1'] = self.nu_blue_1_is
         
+        self.nu_history['blue_1'].append(self.nu_blue_1_is)
+        
         self.nu_blue_1_was.append(self.nu_blue_1_is)
         self.nu_blue_2_was.append(self.nu_blue_2_is)
         self.nu_red_1_was.append(self.nu_red_1_is)
@@ -235,16 +241,21 @@ class laser_control(object):
     ###########################################################################
     ### FUNCTIONS FOR LASER BLUE 1 ############################################
     ###########################################################################
-    #--- function to lock laser blue 1 ---------------------------------------#
-    def lock_laser_blue_1_setup(self):
-        lock_id = 'blue_1'
-        self.debug_flag = False
-        self.debug_counter = 0
-        self.errors_previous[lock_id] = 0.0
+    #--- function to lock laser ---------------------------------------#
+    def lock_laser_setup(self, laser_id):
+        if laser_id == 'blue_1':
+            self.debug_flag = False
+            self.debug_counter = 0
+            
+        self.errors_previous[laser_id] = 0.0
     
-    def lock_laser_blue_1(self):
+
+        
+
+    def lock_laser(self, laser_id):
+        
         '''
-            the locking function for laser blue 1. a PI controller is
+            a PI controller is
             implemented, with gains alpha for the proportional and beta for the
             integral part.
             
@@ -253,19 +264,16 @@ class laser_control(object):
             mode jumping in the laser. for too big voltage jumps the lock
             breaks.
         '''
-        
-        lock_id = 'blue_1'
-            
-        # copy parameters to be fixed for this iteration #
-        nu_is = self.nu[lock_id]
-        nu_wanted = self.nu_setpoint[lock_id]
+
+        nu_is = self.nu[laser_id]
+        nu_wanted = self.nu_setpoint[laser_id]
         
         error = nu_wanted - nu_is
-        error_previous = self.errors_previous[lock_id]
-        self.errors_previous[lock_id] = error
+        error_previous = self.errors_previous[laser_id]
+        self.errors_previous[laser_id] = error
         
-        k_p = self.lock_pars[lock_id]['k_p']
-        k_i = self.lock_pars[lock_id]['k_i']
+        k_p = self.lock_pars[laser_id]['k_p']
+        k_i = self.lock_pars[laser_id]['k_i']
         
         #------------------------------------------------#
                    
@@ -278,12 +286,12 @@ class laser_control(object):
         #------------------------------------------------#
 
         # prop + in + current set voltage ---------------#
-        new_piezo_value = P_part + I_part + self.piezo_volt[lock_id]
+        new_piezo_value = P_part + I_part + self.piezo_volt[laser_id]
         #------------------------------------------------#
         
         
         # debug information -----------------------------#
-        if lock_id == 'blue_1':
+        if laser_id == 'blue_1':        # restricted to blue 1 for now
             if self.debug_flag: 
                 if self.debug_counter == 0:
                     self.t0 = time.monotonic()
@@ -311,61 +319,39 @@ class laser_control(object):
         
         # restrict voltage jumps
         if -1 <= (P_part + I_part) <= 1:
-
-            #self.T_DLC_blues.set_parameter('laser1:dl:pc:voltage-set', new_piezo_value)
-            self.set_piezo(new_piezo_value, lock_id)
-            self.piezo_volt[lock_id] = new_piezo_value
-            self.lock_blue_1_count = 0
+            self.set_piezo(new_piezo_value, laser_id)
+            self.piezo_volt[laser_id] = new_piezo_value
+            self.lock_count[laser_id] = 0
             
         else:
-            if self.lock_blue_1_count < 10:
-                self.lock_blue_1_count += 1
+            if self.lock_count[laser_id] < 10:
+                self.lock_count[laser_id] += 1
                 pass
             else:
-                print('break lock for laser blue 1, delta in piezo voltage too large!')
-                self.lock_blue_1 = False
-                self.lock_blue_1_count = 0
+                print(f'break lock for laser {laser_id}, delta in piezo voltage too large!')
+                self.lock_lasers[laser_id] = False
+                self.lock_count[laser_id] = 0
     #-------------------------------------------------------------------------#
 
     def set_piezo(self, piezo_value, laser_id):
         if laser_id == 'blue_1':
             self.T_DLC_blues.set_parameter('laser1:dl:pc:voltage-set', piezo_value)
+        elif laser_id == 'blue_2':
+            self.T_DLC_blues.set_parameter('laser2:dl:pc:voltage-set', piezo_value)
         
-                
-    #--- start thread calling function to lock laser blue 1 ------------------#        
-    def lock_laser_blue_1_on(self):
-        '''
-            function which starts the thread for the locking function of the
-            blue laser 1. 
-        '''
-        if not self.lock_blue_1:
-            self.lock_laser_blue_1_setup()
-            self.lock_blue_1 = True
-            print('Lock laser blue 1 turned ON')
+        
+    def lock_laser_on(self, laser_id):
+        
+        if not self.lock_lasers[laser_id]:
+            self.lock_laser_setup(laser_id)
+            self.lock_lasers[laser_id] = True
+            print(f'Lock for laser {laser_id} turned ON')
         else:
-            print('Blue 1 lock already engaged')
-
-        
-
-
-#        if not self.lock_blue_1_flag:
-#            thread_lock_blue_1 = threading.Thread(target = self.f_lock_laser_blue_1)         
-#            thread_lock_blue_1.start()
-#            print('Lock laser blue 1 turned ON')
-#        else:
-#            print('Blue 1 lock already engaged')
-    #-------------------------------------------------------------------------#   
-        
-    #--- stop thread calling function to lock laser blue 1 -------------------#    
-    def lock_laser_blue_1_off(self):
-        '''
-            function which terminates the thread for the locking function of
-            the blue laser 1. 
-        '''
-        
-        print('lock laser blue 1 turned OFF')
-        
-        self.lock_blue_1 = False
+            print(f'{laser_id} lock already engaged')  
+    
+    def lock_laser_off(self, laser_id):
+        print(f'Lock for laser {laser_id} turned OFF')
+        self.lock_lasers[laser_id] = False
     #-------------------------------------------------------------------------#
     
     
@@ -382,6 +368,9 @@ class laser_control(object):
             wanted frequency using the set point frequency of the lock, and
             waits for the duration of the sleep time.
         '''
+        
+        laser_id = 'blue_1'
+        
         nu_start_MHz = int(self.nu_blue_1_is * 10**6)
         nu_stop_MHz = int(self.nu_blue_1_smooth_want * 10**6)
         nu_incr_MHz = int(self.nu_smooth_increment * 10**6)
@@ -400,8 +389,7 @@ class laser_control(object):
         for i in range(len(nu_list)):
             
             if self.nu_blue_1_smooth_flag == 0:
-            
-                self.nu_blue_1_want = nu_list[i]
+                self.nu_setpoint[laser_id] = nu_list[i]
                                 
                 time.sleep(t_increment)
                 
