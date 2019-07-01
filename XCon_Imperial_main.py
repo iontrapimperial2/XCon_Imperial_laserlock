@@ -376,7 +376,7 @@ class laser_control(object):
         
         laser_id = 'blue_1'
         
-        nu_start_MHz = int(self.nu_blue_1_is * 10**6)
+        nu_start_MHz = int(self.nu[laser_id] * 10**6)
         nu_stop_MHz = int(self.nu_blue_1_smooth_want * 10**6)
         nu_incr_MHz = int(self.nu_smooth_increment * 10**6)
         delta_t = self.nu_blue_1_smooth_delta_t
@@ -446,7 +446,7 @@ class laser_control(object):
         
         laser_id = 'blue_2'
         
-        nu_start_MHz = int(self.nu_blue_2_is * 10**6)
+        nu_start_MHz = int(self.nu[laser_id] * 10**6)
         nu_stop_MHz = int(self.nu_blue_2_smooth_want * 10**6)
         nu_incr_MHz = int(self.nu_smooth_increment * 10**6)
         delta_t = self.nu_blue_2_smooth_delta_t
