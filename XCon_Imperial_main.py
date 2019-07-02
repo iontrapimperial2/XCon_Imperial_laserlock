@@ -221,8 +221,6 @@ class laser_control(object):
             frequency
         '''
         
-        #self.nu_blue_1_is = self.HF_WM.get_frequency(1)
-        #self.nu_blue_2_is = self.HF_WM.get_frequency(2)
         self.nu_red_1_is = int(self.HF_WM.get_frequency(3) * 10**7)/10**7
         self.nu_red_2_is = int(self.HF_WM.get_frequency(4) * 10**7)/10**7
         

@@ -110,21 +110,6 @@
                <item row="3" column="0" rowspan="3" colspan="8">
                 <layout class="QVBoxLayout" name="verticalLayout_nu_laser_blue_1"/>
                </item>
-               <item row="7" column="0" colspan="4">
-                <widget class="QLabel" name="label_3">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string> nu_blue_1_want [THz]:</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
                <item row="9" column="0" colspan="3">
                 <widget class="QLabel" name="label_2">
                  <property name="font">
@@ -133,7 +118,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> lock_blue_1_alpha:</string>
+                  <string>k_p:</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -159,33 +144,6 @@
                   </size>
                  </property>
                 </spacer>
-               </item>
-               <item row="7" column="4" colspan="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_1_want">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>6</number>
-                 </property>
-                 <property name="minimum">
-                  <double>755.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>755.500000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.000001000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>755.186820000000012</double>
-                 </property>
-                </widget>
                </item>
                <item row="0" column="0">
                 <spacer name="horizontalSpacer_10">
@@ -321,6 +279,9 @@
                  <property name="text">
                   <string>Lock ON</string>
                  </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
                 </widget>
                </item>
                <item row="10" column="4" colspan="4">
@@ -333,6 +294,9 @@
                  <property name="text">
                   <string>Lock OFF</string>
                  </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="4" colspan="2">
@@ -343,7 +307,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_1_is [THz]:</string>
+                  <string>frequency:</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -358,7 +322,10 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Smooth detuning START</string>
+                  <string>Smooth change offset</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
@@ -373,16 +340,19 @@
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>6</number>
+                  <number>2</number>
                  </property>
                  <property name="minimum">
-                  <double>755.000000000000000</double>
+                  <double>-1000.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>755.500000000000000</double>
+                  <double>1000.000000000000000</double>
                  </property>
                  <property name="value">
-                  <double>755.186839999999961</double>
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
@@ -394,7 +364,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_1_smooth_want [THz]:</string>
+                  <string>New offset [MHz]:</string>
                  </property>
                 </widget>
                </item>
@@ -406,7 +376,10 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Smooth detuning STOP</string>
+                  <string>Stop smooth change</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
@@ -418,7 +391,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_1_smooth_delta_t [s]:</string>
+                  <string>Change time [s]:</string>
                  </property>
                 </widget>
                </item>
@@ -444,10 +417,13 @@
                  <property name="value">
                   <double>10.000000000000000</double>
                  </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
                 </widget>
                </item>
                <item row="9" column="3">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_alpha">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_k_p">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -468,6 +444,9 @@
                  <property name="value">
                   <double>20.000000000000000</double>
                  </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
                 </widget>
                </item>
                <item row="11" column="0" colspan="8">
@@ -485,7 +464,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> lock_blue_1_beta:</string>
+                  <string>k_i:</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -508,7 +487,7 @@
                 </widget>
                </item>
                <item row="9" column="7">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_beta">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_k_i">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -528,6 +507,9 @@
                  </property>
                  <property name="value">
                   <double>0.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
@@ -562,6 +544,85 @@
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="0" colspan="2">
+                <widget class="QLabel" name="label_3">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>base freq [THz]:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_1_want">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>6</number>
+                 </property>
+                 <property name="minimum">
+                  <double>755.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>755.500000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000001000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>755.186820000000012</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="3">
+                <widget class="QLabel" name="label_36">
+                 <property name="text">
+                  <string>offset [MHz]:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="4" colspan="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_1_offset">
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="6">
+                <widget class="QLabel" name="label_37">
+                 <property name="text">
+                  <string>setpoint:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="7">
+                <widget class="QLabel" name="label_blue_1_setpoint">
+                 <property name="text">
+                  <string>TextLabel</string>
                  </property>
                 </widget>
                </item>
@@ -1060,6 +1121,9 @@
                  <property name="text">
                   <string>Lock ON</string>
                  </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
+                 </property>
                 </widget>
                </item>
                <item row="9" column="5" colspan="3">
@@ -1184,6 +1248,9 @@
                  </property>
                  <property name="value">
                   <double>755.258140000000026</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
                  </property>
                 </widget>
                </item>
@@ -1445,6 +1512,9 @@
                  </property>
                  <property name="text">
                   <string>Lock OFF</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
                  </property>
                 </widget>
                </item>
