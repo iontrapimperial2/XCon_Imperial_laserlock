@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -2093,7 +2093,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_1_init [THz]:</string>
+                  <string>blue 1 offset change [MHz]:</string>
                  </property>
                 </widget>
                </item>
@@ -2125,7 +2125,7 @@
                 </widget>
                </item>
                <item row="1" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_nu_blue_1_init">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_blue_1_change">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -2138,16 +2138,19 @@
                   <number>6</number>
                  </property>
                  <property name="minimum">
-                  <double>755.000000000000000</double>
+                  <double>-1000.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>755.500000000000000</double>
+                  <double>1000.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.000001000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="value">
-                  <double>755.186770000000024</double>
+                  <double>-100.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
