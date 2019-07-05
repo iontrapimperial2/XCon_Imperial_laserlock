@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -94,23 +94,10 @@
             <layout class="QVBoxLayout" name="verticalLayout_2">
              <item>
               <layout class="QGridLayout" name="gridLayout_2">
-               <item row="3" column="8">
-                <spacer name="verticalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>1</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
                <item row="3" column="0" rowspan="3" colspan="8">
                 <layout class="QVBoxLayout" name="verticalLayout_nu_laser_blue_1"/>
                </item>
-               <item row="9" column="0" colspan="3">
+               <item row="9" column="0" colspan="2">
                 <widget class="QLabel" name="label_2">
                  <property name="font">
                   <font>
@@ -173,19 +160,6 @@
                </item>
                <item row="0" column="7">
                 <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>1</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="0" column="2">
-                <spacer name="horizontalSpacer_8">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -269,36 +243,6 @@
                  </property>
                 </spacer>
                </item>
-               <item row="10" column="0" colspan="4">
-                <widget class="QPushButton" name="pushButton_lock_laser_blue_1_on">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Lock ON</string>
-                 </property>
-                 <property name="laserID" stdset="0">
-                  <string>blue_1</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="4" colspan="4">
-                <widget class="QPushButton" name="pushButton_lock_laser_blue_1_off">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Lock OFF</string>
-                 </property>
-                 <property name="laserID" stdset="0">
-                  <string>blue_1</string>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="4" colspan="2">
                 <widget class="QLabel" name="label">
                  <property name="font">
@@ -307,7 +251,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>frequency:</string>
+                  <string>frequency [THz]:</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -329,8 +273,61 @@
                  </property>
                 </widget>
                </item>
+               <item row="9" column="2">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_k_p">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>200.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <spacer name="horizontalSpacer_8">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>1</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="3" column="8">
+                <spacer name="verticalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>1</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
                <item row="12" column="4" colspan="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_1_smooth_want">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_1_smooth_new_offset">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -396,7 +393,7 @@
                 </widget>
                </item>
                <item row="13" column="4" colspan="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_1_smooth_delta_t">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_1_smooth_delta_t">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -412,37 +409,10 @@
                   <double>300.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.100000000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="value">
                   <double>10.000000000000000</double>
-                 </property>
-                 <property name="laserID" stdset="0">
-                  <string>blue_1</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="3">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_k_p">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>2</number>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.050000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>20.000000000000000</double>
                  </property>
                  <property name="laserID" stdset="0">
                   <string>blue_1</string>
@@ -453,21 +423,6 @@
                 <widget class="Line" name="line_3">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="4" colspan="3">
-                <widget class="QLabel" name="label_4">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>k_i:</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
                 </widget>
                </item>
@@ -483,33 +438,6 @@
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="7">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_k_i">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>2</number>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.000000000000000</double>
-                 </property>
-                 <property name="laserID" stdset="0">
-                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
@@ -563,7 +491,7 @@
                 </widget>
                </item>
                <item row="7" column="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_1_want">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_1_base">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -623,6 +551,88 @@
                 <widget class="QLabel" name="label_blue_1_setpoint">
                  <property name="text">
                   <string>TextLabel</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="3">
+                <widget class="QLabel" name="label_4">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>k_i:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_1_k_i">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>2</number>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="3" colspan="2">
+                <widget class="QPushButton" name="pushButton_lock_laser_blue_1_off">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Lock OFF</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0" colspan="3">
+                <widget class="QPushButton" name="pushButton_lock_laser_blue_1_on">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Lock ON</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="6" colspan="2">
+                <widget class="QPushButton" name="pushButton_set_base_blue_1">
+                 <property name="text">
+                  <string>Set base to setpoint</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
@@ -1126,20 +1136,8 @@
                  </property>
                 </widget>
                </item>
-               <item row="9" column="5" colspan="3">
-                <widget class="QLabel" name="label_16">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string> lock_blue_2_beta:</string>
-                 </property>
-                </widget>
-               </item>
                <item row="12" column="5" colspan="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_2_smooth_want">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_2_smooth_new_offset">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -1149,66 +1147,27 @@
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>6</number>
+                  <number>2</number>
                  </property>
                  <property name="minimum">
-                  <double>755.000000000000000</double>
+                  <double>-1000.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>755.500000000000000</double>
+                  <double>1000.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.000001000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="value">
-                  <double>755.258159999999975</double>
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
                  </property>
                 </widget>
                </item>
                <item row="3" column="1" rowspan="3" colspan="8">
                 <layout class="QVBoxLayout" name="verticalLayout_nu_laser_blue_2"/>
-               </item>
-               <item row="9" column="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_2_alpha">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.050000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>20.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="9" column="8">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_2_beta">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="maximum">
-                  <double>999999.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.010000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.000000000000000</double>
-                 </property>
-                </widget>
                </item>
                <item row="8" column="1" colspan="8">
                 <widget class="Line" name="line_7">
@@ -1224,38 +1183,8 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="5" colspan="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_2_want">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>6</number>
-                 </property>
-                 <property name="minimum">
-                  <double>755.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>755.500000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.000001000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>755.258140000000026</double>
-                 </property>
-                 <property name="laserID" stdset="0">
-                  <string>blue_2</string>
-                 </property>
-                </widget>
-               </item>
                <item row="13" column="5" colspan="4">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_nu_blue_2_smooth_delta_t">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_2_smooth_delta_t">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -1271,22 +1200,10 @@
                   <double>300.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.100000000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="value">
                   <double>10.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="1" colspan="4">
-                <widget class="QLabel" name="label_9">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string> nu_blue_2_want [THz]:</string>
                  </property>
                 </widget>
                </item>
@@ -1299,6 +1216,9 @@
                  </property>
                  <property name="text">
                   <string>Smooth detuning START</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
                  </property>
                 </widget>
                </item>
@@ -1351,7 +1271,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_2_is [THz]:</string>
+                  <string>frequency [THz]:</string>
                  </property>
                 </widget>
                </item>
@@ -1364,6 +1284,9 @@
                  </property>
                  <property name="text">
                   <string>Smooth detuning STOP</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
                  </property>
                 </widget>
                </item>
@@ -1426,33 +1349,6 @@
                  </property>
                 </spacer>
                </item>
-               <item row="9" column="1" colspan="3">
-                <widget class="QLabel" name="label_8">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string> lock_blue_2_alpha:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="7" colspan="2">
-                <widget class="QLabel" name="label_nu_blue_2_is">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>0.0</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                </widget>
-               </item>
                <item row="13" column="1" colspan="4">
                 <widget class="QLabel" name="label_11">
                  <property name="font">
@@ -1461,7 +1357,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_2_smooth_delta_t [s]:</string>
+                  <string>Change time [s]:</string>
                  </property>
                 </widget>
                </item>
@@ -1473,7 +1369,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_2_smooth_want [THz]:</string>
+                  <string>New offset [MHz]:</string>
                  </property>
                 </widget>
                </item>
@@ -1573,6 +1469,179 @@
                 <widget class="Line" name="line_8">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="7" colspan="2">
+                <widget class="QLabel" name="label_nu_blue_2_is">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>0.0</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="1" colspan="2">
+                <widget class="QLabel" name="label_9">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>base freq [THz]:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="3">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_2_base">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>6</number>
+                 </property>
+                 <property name="minimum">
+                  <double>755.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>755.500000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000001000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>755.258140000000026</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="4">
+                <widget class="QLabel" name="label_38">
+                 <property name="text">
+                  <string>offset [MHz]:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="5">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_blue_2_offset">
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="7">
+                <widget class="QLabel" name="label_39">
+                 <property name="text">
+                  <string>setpoint:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="8">
+                <widget class="QLabel" name="label_blue_2_setpoint">
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="1" colspan="2">
+                <widget class="QLabel" name="label_8">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>k_p:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="3">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_2_k_p">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>200.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="4">
+                <widget class="QLabel" name="label_16">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>k_i</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="5">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_lock_blue_2_k_i">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="maximum">
+                  <double>999999.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>10.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>200.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="7" colspan="2">
+                <widget class="QPushButton" name="pushButton_set_base_blue_2">
+                 <property name="text">
+                  <string>Set base to setpoint</string>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_2</string>
                  </property>
                 </widget>
                </item>
@@ -2059,6 +2128,76 @@
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer_39">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>13</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="2">
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="pushButton_debug">
+              <property name="text">
+               <string>Debug</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QSpinBox" name="spinBox_debug">
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_35">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>13</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="1">
+           <spacer name="verticalSpacer_17">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="1">
+           <spacer name="verticalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
           <item row="1" column="2">
            <widget class="QGroupBox" name="groupBox_5">
             <property name="font">
@@ -2093,109 +2232,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>blue 1 offset change [MHz]:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_nu_blue_1_detuned">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>6</number>
-                 </property>
-                 <property name="minimum">
-                  <double>755.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>755.500000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.000001000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>755.186649999999986</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_blue_1_change">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>6</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-1000.000000000000000</double>
-                 </property>
-                 <property name="maximum">
-                  <double>1000.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>1.000000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>-100.000000000000000</double>
-                 </property>
-                 <property name="laserID" stdset="0">
-                  <string>blue_1</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_delta_t1">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <double>100.000000000000000</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>10.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_delta_t2">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="decimals">
-                  <number>1</number>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>2.000000000000000</double>
+                  <string>blue 1 start offset [MHz]:</string>
                  </property>
                 </widget>
                </item>
@@ -2225,45 +2262,6 @@
                  </property>
                 </spacer>
                </item>
-               <item row="7" column="3" colspan="2">
-                <widget class="QSpinBox" name="spinBox_sawtooth_total_reps">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="value">
-                  <number>1</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="3" colspan="2">
-                <widget class="QPushButton" name="pushButton_sawtooth_laser_blue_1_and_2_stop">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>STOP</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="7" column="1">
-                <widget class="QLabel" name="label_33">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string> total_reps:</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="3">
                 <spacer name="horizontalSpacer_36">
                  <property name="orientation">
@@ -2285,19 +2283,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> delta_t2 [s]:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="8" column="1" colspan="2">
-                <widget class="QPushButton" name="pushButton_sawtooth_laser_blue_1_and_2_start">
-                 <property name="font">
-                  <font>
-                   <pointsize>15</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>START</string>
+                  <string>sweep time 2 [s]:</string>
                  </property>
                 </widget>
                </item>
@@ -2309,7 +2295,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> delta_t1 [s]:</string>
+                  <string>sweep time 1 [s]:</string>
                  </property>
                 </widget>
                </item>
@@ -2321,7 +2307,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_1_detuned [THz]:</string>
+                  <string>blue 1 end offset [MHz]:</string>
                  </property>
                 </widget>
                </item>
@@ -2346,7 +2332,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_2_init [THz]:</string>
+                  <string>blue 2 start offset [MHz]:</string>
                  </property>
                 </widget>
                </item>
@@ -2358,12 +2344,36 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string> nu_blue_2_detuned [THz]:</string>
+                  <string>blue 2 end offset [MHz]:</string>
                  </property>
                 </widget>
                </item>
-               <item row="3" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_nu_blue_2_init">
+               <item row="8" column="1">
+                <widget class="QPushButton" name="pushButton_sawtooth_start">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Start</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="1" colspan="2">
+                <widget class="QLabel" name="label_33">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string> total reps (0 for continuous):</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_blue_1_start_offset">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -2373,24 +2383,27 @@
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>6</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
-                  <double>755.000000000000000</double>
+                  <double>-1000.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>755.500000000000000</double>
+                  <double>1000.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.000001000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="value">
-                  <double>755.258109999999988</double>
+                  <double>0.000000000000000</double>
+                 </property>
+                 <property name="laserID" stdset="0">
+                  <string>blue_1</string>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="3" colspan="2">
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_nu_blue_2_detuned">
+               <item row="2" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_blue_1_end_offset">
                  <property name="font">
                   <font>
                    <pointsize>15</pointsize>
@@ -2400,19 +2413,152 @@
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="decimals">
-                  <number>6</number>
+                  <number>1</number>
                  </property>
                  <property name="minimum">
-                  <double>755.000000000000000</double>
+                  <double>-1000.000000000000000</double>
                  </property>
                  <property name="maximum">
-                  <double>755.500000000000000</double>
+                  <double>1000.000000000000000</double>
                  </property>
                  <property name="singleStep">
-                  <double>0.000001000000000</double>
+                  <double>1.000000000000000</double>
                  </property>
                  <property name="value">
-                  <double>755.257989999999950</double>
+                  <double>-100.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_blue_2_start_offset">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>0.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_blue_2_end_offset">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>-100.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_time_1">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>10.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="4">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sawtooth_time_2">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="singleStep">
+                  <double>1.000000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>2.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="7" column="4">
+                <widget class="QSpinBox" name="spinBox_sawtooth_total_reps">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="value">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="2">
+                <widget class="QPushButton" name="pushButton_sawtooth_stop">
+                 <property name="font">
+                  <font>
+                   <pointsize>15</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Stop</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="3">
+                <widget class="QPushButton" name="pushButton_sawtooth_stop_after">
+                 <property name="text">
+                  <string>Stop after current rep</string>
                  </property>
                 </widget>
                </item>
@@ -2420,82 +2566,6 @@
              </item>
             </layout>
            </widget>
-          </item>
-          <item row="1" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_sawtooth_blue_1"/>
-          </item>
-          <item row="0" column="0">
-           <spacer name="horizontalSpacer_39">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>1</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_35">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>1</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="1">
-           <spacer name="verticalSpacer_15">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>1</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1">
-           <spacer name="verticalSpacer_17">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>1</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_sawtooth_blue_2"/>
-          </item>
-          <item row="2" column="2">
-           <layout class="QGridLayout" name="gridLayout_8">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButton_debug">
-              <property name="text">
-               <string>PushButton</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QSpinBox" name="spinBox_debug">
-              <property name="maximum">
-               <number>9999</number>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </item>
          </layout>
         </item>

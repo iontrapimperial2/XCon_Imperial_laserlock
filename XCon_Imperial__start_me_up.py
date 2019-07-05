@@ -52,13 +52,29 @@ class window(Ui_XCon_Imperial):
         self.doubleSpinBox_lock_blue_1_k_i.setValue(params['lock']['blue_1']['k_i'])
         self.doubleSpinBox_lock_blue_1_k_i.setMaximum(params['lock']['blue_1']['k_i_max'])
 
-        self.doubleSpinBox_lock_blue_2_alpha.setValue(params['lock']['blue_2']['k_p'])
-        self.doubleSpinBox_lock_blue_2_alpha.setMaximum(params['lock']['blue_2']['k_p_max'])
-        self.doubleSpinBox_lock_blue_2_beta.setValue(params['lock']['blue_2']['k_i'])
-        self.doubleSpinBox_lock_blue_2_beta.setMaximum(params['lock']['blue_2']['k_i_max'])
+        self.doubleSpinBox_lock_blue_2_k_p.setValue(params['lock']['blue_2']['k_p'])
+        self.doubleSpinBox_lock_blue_2_k_p.setMaximum(params['lock']['blue_2']['k_p_max'])
+        self.doubleSpinBox_lock_blue_2_k_i.setValue(params['lock']['blue_2']['k_i'])
+        self.doubleSpinBox_lock_blue_2_k_i.setMaximum(params['lock']['blue_2']['k_i_max'])
+        
+        # Initialise dictionaries etc
         
         self.plots = {}
-
+        
+        self.base_freqs = {'blue_1': self.doubleSpinBox_blue_1_base.value(), 'blue_2': self.doubleSpinBox_blue_2_base.value()}
+        self.offset_freqs = {'blue_1': self.doubleSpinBox_blue_1_offset.value(), 'blue_2': self.doubleSpinBox_blue_2_offset.value()}
+        self.setpoint_freqs = {'blue_1': self.base_freqs['blue_1']+self.offset_freqs['blue_1']*1e-6, 'blue_2':  self.base_freqs['blue_2']+self.offset_freqs['blue_2']*1e-6}
+        
+        self.smooth_change_flags = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False}
+        
+        self.smooth_change_params_blue_1 = {'initial offset': 0, 'final offset': 10, 'change time': 1, 'start time': 0}
+        self.smooth_change_params = {'blue_1': self.smooth_change_params_blue_1.copy(), 'blue_2': self.smooth_change_params_blue_1.copy()}
+        
+        self.sawtooth_flag = False
+        self.sawtooth_stop_flag = False
+        self.sawtooth_stop_after_flag = False
+        self.sawtooth_params = {'initial offset': 0, 'final offset': 10, 'time 1': 1, 'time 2': 1, 'reps': 1, 'reps completed': 0, 'start time': 0}
+        
         #---------------------------------------------------------------------#
         #--- PLOTS AND PUSH BUTTONS FOR LASER BLUE 1 -----------------#
         #---------------------------------------------------------------------#
@@ -70,30 +86,17 @@ class window(Ui_XCon_Imperial):
         
         self.verticalLayout_nu_laser_blue_1.addWidget(self.plots['blue_1'])
         
-        self.base_freqs = {'blue_1': self.doubleSpinBox_nu_blue_1_want.value(), 'blue_2': self.doubleSpinBox_nu_blue_2_want.value()}
-        self.offset_freqs = {'blue_1': self.doubleSpinBox_blue_1_offset.value(), 'blue_2': 0}
-        self.setpoint_freqs = {'blue_1': self.base_freqs['blue_1']+self.offset_freqs['blue_1']*1e-6, 'blue_2':  self.base_freqs['blue_2']+self.offset_freqs['blue_2']*1e-6}
-        
-        self.smooth_change_flags = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False}
-        
-        self.smooth_change_params_blue_1 = {'initial offset': 0, 'final_offset': 10, 'change time': 1, 'start time': 0}
-        self.smooth_change_params = {'blue_1': self.smooth_change_params_blue_1.copy(), 'blue_2': self.smooth_change_params_blue_1.copy()}
-        
         self.label_blue_1_setpoint.setText(f'{self.setpoint_freqs["blue_1"]:.7f}')
         
-        #---------------------------------------------------------------------#
-
-        #---------------------------------------------------------------------#   
-        #self.pushButton_lock_laser_blue_1_on.clicked.connect(lambda: self.pushButton_lock_laser_on_clicked('blue_1'))
         self.pushButton_lock_laser_blue_1_on.clicked.connect(self.lock_laser_on)
         self.pushButton_lock_laser_blue_1_off.clicked.connect(self.lock_laser_off)
+        
+        self.pushButton_set_base_blue_1.clicked.connect(self.set_base)
         
         self.pushButton_smooth_change_laser_blue_1_start.clicked.connect(self.start_smooth_scan)
         self.pushButton_smooth_change_laser_blue_1_stop.clicked.connect(self.stop_smooth_scan)
         
-        self.doubleSpinBox_nu_blue_1_want.valueChanged.connect(self.base_freq_changed)
-        self.doubleSpinBox_nu_blue_2_want.valueChanged.connect(self.base_freq_changed)
-        
+        self.doubleSpinBox_blue_1_base.valueChanged.connect(self.base_freq_changed)
         self.doubleSpinBox_blue_1_offset.valueChanged.connect(self.offset_freq_changed)
         
         self.doubleSpinBox_lock_blue_1_k_p.valueChanged.connect(self.k_p_changed)
@@ -114,17 +117,21 @@ class window(Ui_XCon_Imperial):
         
         self.verticalLayout_nu_laser_blue_2.addWidget(self.plots['blue_2'])
         #---------------------------------------------------------------------#
-
-        #---------------------------------------------------------------------#   
+        self.label_blue_2_setpoint.setText(f'{self.setpoint_freqs["blue_2"]:.7f}')
+        
         self.pushButton_lock_laser_blue_2_on.clicked.connect(self.lock_laser_on)
         self.pushButton_lock_laser_blue_2_off.clicked.connect(self.lock_laser_off)
         
-        self.pushButton_smooth_change_laser_blue_2_start.clicked.connect(self.pushButton_smooth_change_laser_blue_2_start_clicked)
-        self.pushButton_smooth_change_laser_blue_2_stop.clicked.connect(self.pushButton_smooth_change_laser_blue_2_stop_clicked)
-        #---------------------------------------------------------------------#
-     
- 
-
+        self.pushButton_smooth_change_laser_blue_2_start.clicked.connect(self.start_smooth_scan)
+        self.pushButton_smooth_change_laser_blue_2_stop.clicked.connect(self.stop_smooth_scan)
+        
+        self.pushButton_set_base_blue_1.clicked.connect(self.set_base)
+        
+        self.doubleSpinBox_blue_2_base.valueChanged.connect(self.base_freq_changed)        
+        self.doubleSpinBox_blue_2_offset.valueChanged.connect(self.offset_freq_changed)
+        
+        self.doubleSpinBox_lock_blue_2_k_p.valueChanged.connect(self.k_p_changed)
+        self.doubleSpinBox_lock_blue_2_k_i.valueChanged.connect(self.k_i_changed)
 
         #---------------------------------------------------------------------#
         #--- PLOTS, PUSH BUTTONS FOR LASER RED 1 ------------------#
@@ -174,32 +181,15 @@ class window(Ui_XCon_Imperial):
 
 
         #---------------------------------------------------------------------#
-        #--- PLOTS, PUSH BUTTONS FOR SAWTOOTH ---------------------#
+        #--- PUSH BUTTONS FOR SAWTOOTH ---------------------#
         #---------------------------------------------------------------------#         
-        self.plot_sawtooth1 = pg.PlotWidget(name = 'widget_plot_sawtooth')
-        self.plot_sawtooth1.setBackground(background = brush_background)
-        self.plot_sawtooth1.setLabel('left', 'nu', units = '[THz]', **labelstyle_L)
-        self.plot_sawtooth1.setLabel('bottom', 'time', units = '', **labelstyle_L)
-        self.plot_sawtooth1.showGrid(x = True, y = True)
-        
-        self.verticalLayout_sawtooth_blue_1.addWidget(self.plot_sawtooth1)
+
         #---------------------------------------------------------------------#
         
-        #---------------------------------------------------------------------#        
-        self.plot_sawtooth2 = pg.PlotWidget(name = 'widget_plot_sawtooth')
-        self.plot_sawtooth2.setBackground(background = brush_background)
-        self.plot_sawtooth2.setLabel('left', 'nu', units = '[THz]', **labelstyle_L)
-        self.plot_sawtooth2.setLabel('bottom', 'time', units = '', **labelstyle_L)
-        self.plot_sawtooth2.showGrid(x = True, y = True)
+        self.pushButton_sawtooth_start.clicked.connect(self.sawtooth_start)
+        self.pushButton_sawtooth_stop.clicked.connect(self.sawtooth_stop)
+        self.pushButton_sawtooth_stop_after.clicked.connect(self.sawtooth_stop_after)
         
-        self.verticalLayout_sawtooth_blue_2.addWidget(self.plot_sawtooth2)
-        #---------------------------------------------------------------------#
-        
-        self.pushButton_sawtooth_laser_blue_1_and_2_start.clicked.connect(lc.sawtooth_laser_blue_1_and_2_on)
-        self.pushButton_sawtooth_laser_blue_1_and_2_stop.clicked.connect(lc.sawtooth_laser_blue_1_and_2_off)
-        
-        #---------------------------------------------------------------------#
-        #self.doubleSpinBox_lock_blue_1_alpha
         #---------------------------------------------------------------------#
         #--- SET UP TIMERS ---------------------#
         #---------------------------------------------------------------------#          
@@ -213,17 +203,17 @@ class window(Ui_XCon_Imperial):
         
         # Setpoint updater
         self.timer_update_setpoints = QtCore.QTimer()
-        self.timer_update_setpoints.setInterval(250)
+        self.timer_update_setpoints.setInterval(50)
         self.timer_update_setpoints.setTimerType(QtCore.Qt.PreciseTimer)
         self.timer_update_setpoints.timeout.connect(self.update_setpoints)
         self.timer_update_setpoints.start()
         
         # Sawtooth scanner
-        self.timer_t_dependent_plots_sawtooth = QtCore.QTimer()
-        self.timer_t_dependent_plots_sawtooth.setInterval(250)
-        self.timer_t_dependent_plots_sawtooth.setTimerType(QtCore.Qt.PreciseTimer)
-        self.timer_t_dependent_plots_sawtooth.timeout.connect(self.t_dependent_updates_sawtooth)
-        self.timer_t_dependent_plots_sawtooth.start()
+#        self.timer_t_dependent_plots_sawtooth = QtCore.QTimer()
+#        self.timer_t_dependent_plots_sawtooth.setInterval(250)
+#        self.timer_t_dependent_plots_sawtooth.setTimerType(QtCore.Qt.PreciseTimer)
+#        self.timer_t_dependent_plots_sawtooth.timeout.connect(self.t_dependent_updates_sawtooth)
+#        self.timer_t_dependent_plots_sawtooth.start()
         
         #---------------------------------------------------------------------#   
     ###########################################################################
@@ -256,13 +246,15 @@ class window(Ui_XCon_Imperial):
     def lock_laser_off(self):
         laser_id = self.mainWindow.sender().property('laserID')
         lc.lock_laser_off(laser_id)
-        
+    
+    #---
+    
     def start_smooth_scan(self):
         laser_id = self.mainWindow.sender().property('laserID')
-        if not self.smooth_change_flags[laser_id]:
+        if not self.smooth_change_flags[laser_id] and not self.sawtooth_flag:
             initial_offset = self.offset_freqs[laser_id]
-            final_offset = self.get_spinBox(f'doubleSpinBox_nu_{laser_id}_smooth_want').value()
-            change_time = self.get_spinBox(f'doubleSpinBox_nu_{laser_id}_smooth_delta_t').value()
+            final_offset = self.get_spinBox(f'doubleSpinBox_{laser_id}_smooth_new_offset').value()
+            change_time = self.get_spinBox(f'doubleSpinBox_{laser_id}_smooth_delta_t').value()
             start_time = time.monotonic()
             self.smooth_change_params[laser_id] =  {'initial offset': initial_offset, 'final offset': final_offset, 'change time': change_time, 'start time': start_time}
             self.smooth_change_flags[laser_id] = True
@@ -272,7 +264,44 @@ class window(Ui_XCon_Imperial):
     def stop_smooth_scan(self):
         laser_id = self.mainWindow.sender().property('laserID')
         self.smooth_change_flags[laser_id] = False
-        
+    
+    #---
+    
+    def set_base(self):
+        laser_id = self.mainWindow.sender().property('laserID')
+        if not self.sawtooth_flag and not self.smooth_change_flags[laser_id]:
+            self.get_spinBox(f'doubleSpinBox_{laser_id}_base').setValue(self.setpoint_freqs[laser_id])
+            self.get_spinBox(f'doubleSpinBox_{laser_id}_offset').setValue(0)
+    
+    #--
+    
+    def sawtooth_start(self):
+        if not self.sawtooth_flag and not any(self.smooth_change_flags.values()):
+            self.sawtooth_params = {'initial offset blue 1': self.doubleSpinBox_sawtooth_blue_1_start_offset.value(),
+                                    'final offset blue 1': self.doubleSpinBox_sawtooth_blue_1_end_offset.value(),
+                                    'initial offset blue 2': self.doubleSpinBox_sawtooth_blue_2_start_offset.value(),
+                                    'final offset blue 2': self.doubleSpinBox_sawtooth_blue_2_end_offset.value(),
+                                    'time 1': self.doubleSpinBox_sawtooth_time_1.value(),
+                                    'time 2': self.doubleSpinBox_sawtooth_time_2.value(),
+                                    'reps': self.spinBox_sawtooth_total_reps.value(),
+                                    'reps completed': 0,
+                                    'start time': time.monotonic()}
+            self.sawtooth_stop_flag = False
+            self.sawtooth_stop_after_flag = False
+            self.sawtooth_flag = True
+        else:
+            print('already scanning')
+    
+    def sawtooth_stop(self):
+        if self.sawtooth_flag and not self.sawtooth_stop_after_flag:
+            self.sawtooth_stop_flag = True
+    
+    def sawtooth_stop_after(self):
+        if self.sawtooth_flag and not self.sawtooth_stop_flag:
+            self.sawtooth_stop_after_flag = True
+    
+    #---
+    
     def base_freq_changed(self):
         laser_id = self.mainWindow.sender().property('laserID')
         self.base_freqs[laser_id] = self.mainWindow.sender().value()
@@ -280,6 +309,8 @@ class window(Ui_XCon_Imperial):
     def offset_freq_changed(self):
         laser_id = self.mainWindow.sender().property('laserID')
         self.offset_freqs[laser_id] = self.mainWindow.sender().value()
+    
+    #---
     
     def k_p_changed(self):
         laser_id = self.mainWindow.sender().property('laserID')
@@ -294,8 +325,8 @@ class window(Ui_XCon_Imperial):
     ###########################################################################      
     
     def update_plots(self):
-        self.t_dependent_updates_laser('blue_1')
-        self.t_dependent_updates_laser('blue_2')
+        self.update_laser_gui('blue_1')
+        self.update_laser_gui('blue_2')
         self.t_dependent_updates_laser_red_1()
         self.t_dependent_updates_laser_red_2()
     
@@ -315,23 +346,53 @@ class window(Ui_XCon_Imperial):
                 offset_spinBox = self.get_spinBox(f'doubleSpinBox_{laser_id}_offset')
                 offset_spinBox.setValue(new_offset)     # this will automatically change offset_freqs
                     
+        # sawtooth scan
+        #{'initial offset': 0, 'final offset': 10, 'time 1': 1, 'time 2': 1, 'reps': 1, 'reps completed': 0 'start time': 0}
+        if self.sawtooth_flag:
+            if self.sawtooth_stop_flag:
+                self.sawtooth_flag = False
+                self.sawtooth_stop_flag = False
+            else:
+                current_time = time.monotonic() - self.sawtooth_params['start time']
+                time_1 = self.sawtooth_params['time 1']
+                time_2 = self.sawtooth_params['time 2']
+                initial_offset_blue_1 = self.sawtooth_params['initial offset blue 1']
+                final_offset_blue_1 = self.sawtooth_params['final offset blue 1']
+                initial_offset_blue_2 = self.sawtooth_params['initial offset blue 2']
+                final_offset_blue_2 = self.sawtooth_params['final offset blue 2']
+                if current_time <= time_1:
+                    new_offset_blue_1 = initial_offset_blue_1 + (current_time/time_1)*(final_offset_blue_1 - initial_offset_blue_1)
+                    new_offset_blue_2 = initial_offset_blue_2 + (current_time/time_1)*(final_offset_blue_2 - initial_offset_blue_2)
+                elif current_time <= (time_1 + time_2):
+                    new_offset_blue_1 = final_offset_blue_1 + ( (current_time-time_1) /time_2)*(initial_offset_blue_1 - final_offset_blue_1)
+                    new_offset_blue_2 = final_offset_blue_2 + ( (current_time-time_1) /time_2)*(initial_offset_blue_2 - final_offset_blue_2)
+                else:   # current rep finished - check if last
+                    self.sawtooth_params['start time'] = time.monotonic() # reset start time
+                    if self.sawtooth_stop_after_flag:
+                        self.sawtooth_flag = False
+                        self.sawtooth_stop_after_flag = False
+                    else:
+                        self.sawtooth_params['reps completed'] += 1
+                        if self.sawtooth_params['reps completed'] == self.sawtooth_params['reps']:
+                            self.sawtooth_flag = False
+                    new_offset_blue_1 = initial_offset_blue_1
+                    new_offset_blue_2 = initial_offset_blue_2
+                self.get_spinBox(f'doubleSpinBox_blue_1_offset').setValue(new_offset_blue_1)     # this will automatically change offset_freqs
+                self.get_spinBox(f'doubleSpinBox_blue_2_offset').setValue(new_offset_blue_2)                    
         
+            
         self.setpoint_freqs['blue_1'] = self.base_freqs['blue_1']+self.offset_freqs['blue_1']*1e-6
         self.label_blue_1_setpoint.setText(f'{self.setpoint_freqs["blue_1"]:.7f}')
         lc.nu_setpoint['blue_1'] = self.setpoint_freqs['blue_1']
         
         self.setpoint_freqs['blue_2'] = self.base_freqs['blue_2']+self.offset_freqs['blue_2']*1e-6
-        #self.label_blue_2_setpoint.setText(f'{self.setpoint_freqs["blue_2"]:.7f}')
+        self.label_blue_2_setpoint.setText(f'{self.setpoint_freqs["blue_2"]:.7f}')
         lc.nu_setpoint['blue_2'] = self.setpoint_freqs['blue_2']        
         
         
         
-    def t_dependent_updates_laser(self, laser_id):
+    def update_laser_gui(self, laser_id):
         self.get_label(f'label_nu_{laser_id}_is').setText(f'{lc.nu[laser_id]:.7f}')
-                
-        if laser_id == 'blue_2':
-            lc.lock_pars[laser_id]['k_p'] = float(self.get_spinBox(f'doubleSpinBox_lock_{laser_id}_alpha').value())
-            lc.lock_pars[laser_id]['k_i'] = float(self.get_spinBox(f'doubleSpinBox_lock_{laser_id}_beta').value())
         
         lock_status_label = self.get_label(f'label_lock_{laser_id}_status')
         if lc.lock_lasers[laser_id]:
@@ -340,12 +401,20 @@ class window(Ui_XCon_Imperial):
         else:
             lock_status_label.setText('OFF')
             lock_status_label.setStyleSheet('color: red')
-       
+        
+        plot = self.plots[laser_id]
+        
+        ydata = np.array(lc.nu_history[laser_id][-500:], dtype = float)
+        setpoint = self.setpoint_freqs[laser_id]
+        ydata[ydata<(setpoint-1e-3)]=np.NaN
+        ydata[ydata>(setpoint+1e-3)]=np.NaN
+        
         try:
-            self.plots[laser_id].plot(np.arange(500),lc.nu_history[laser_id][-500:],pen = blackPen, symbol = 'o', symbolBrush = blueBrush, name = f'nu_{laser_id}_was', clear = True)
+            plot.plot(ydata,pen = blackPen, symbol = 'o', symbolBrush = blueBrush, name = f'nu_{laser_id}_was', clear = True)
         except Exception:
             pass
-            
+
+        #plot.enableAutoRange('y', 0.99)
         #nu_blue_1_upper = pg.PlotCurveItem([0,500],[755.186881,755.186881],pen = bluePen)
         #nu_blue_1_lower = pg.PlotCurveItem([0,500],[755.186879,755.186879],pen = bluePen)
         #nu_blue_1_fill = pg.FillBetweenItem(nu_blue_1_upper,nu_blue_1_lower,blueBrush_alpha)
@@ -475,20 +544,20 @@ class window(Ui_XCon_Imperial):
 
 
     ###########################################################################        
-    def t_dependent_updates_sawtooth(self):
-       
-        lc.sawtooth_nu_blue_1_init = self.doubleSpinBox_sawtooth_nu_blue_1_init.value()
-        lc.sawtooth_nu_blue_1_detuned = self.doubleSpinBox_sawtooth_nu_blue_1_detuned.value()
-        lc.sawtooth_nu_blue_2_init = self.doubleSpinBox_sawtooth_nu_blue_2_init.value()
-        lc.sawtooth_nu_blue_2_detuned = self.doubleSpinBox_sawtooth_nu_blue_2_detuned.value()
-        lc.sawtooth_delta_t1 = self.doubleSpinBox_sawtooth_delta_t1.value()
-        lc.sawtooth_delta_t2 = self.doubleSpinBox_sawtooth_delta_t2.value()
-        lc.sawtooth_total_reps = self.spinBox_sawtooth_total_reps.value()
-        
-        lc.f_prepare_sawtooth_laser_blue_1_and_2()
-            
-        self.plot_sawtooth1.plot(lc.sawtooth_t_total,lc.sawtooth_nu1_total, order = 0, pen = bluePen, name = 'nu_sawtooth1', clear = True)
-        self.plot_sawtooth2.plot(lc.sawtooth_t_total,lc.sawtooth_nu2_total, order = 0, pen = bluePen, name = 'nu_sawtooth2', clear = True)
+#    def t_dependent_updates_sawtooth(self):
+#       
+#        lc.sawtooth_nu_blue_1_init = self.doubleSpinBox_sawtooth_nu_blue_1_init.value()
+#        lc.sawtooth_nu_blue_1_detuned = self.doubleSpinBox_sawtooth_nu_blue_1_detuned.value()
+#        lc.sawtooth_nu_blue_2_init = self.doubleSpinBox_sawtooth_nu_blue_2_init.value()
+#        lc.sawtooth_nu_blue_2_detuned = self.doubleSpinBox_sawtooth_nu_blue_2_detuned.value()
+#        lc.sawtooth_delta_t1 = self.doubleSpinBox_sawtooth_delta_t1.value()
+#        lc.sawtooth_delta_t2 = self.doubleSpinBox_sawtooth_delta_t2.value()
+#        lc.sawtooth_total_reps = self.spinBox_sawtooth_total_reps.value()
+#        
+#        lc.f_prepare_sawtooth_laser_blue_1_and_2()
+#            
+#        self.plot_sawtooth1.plot(lc.sawtooth_t_total,lc.sawtooth_nu1_total, order = 0, pen = bluePen, name = 'nu_sawtooth1', clear = True)
+#        self.plot_sawtooth2.plot(lc.sawtooth_t_total,lc.sawtooth_nu2_total, order = 0, pen = bluePen, name = 'nu_sawtooth2', clear = True)
     ###########################################################################   
 
       
