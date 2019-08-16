@@ -57,6 +57,7 @@ from apscheduler.schedulers.qt import QtScheduler
 
 from library.instr_Toptica_DLC_pro import Toptica_DLC_pro
 from library.instr_Highfinesse_WS8 import HighFinesse_WM
+from library.instr_DAQ import DAQ
 
 from XCon_Imperial_params import params
 
@@ -75,10 +76,10 @@ class laser_control(object):
         
         #--- FREQUENCY Parameters --------------------------------------------#
         self.nu_blue_1_was, self.nu_blue_2_was, self.nu_red_1_was, self.nu_red_2_was = [0]*500, [0]*500, [0]*500, [0]*500
-        self.nu_history = {'blue_1': [0]*500, 'blue_2': [0]*500, 'red_1': [0]*500, 'red_2': [0]*500}
+        self.nu_history = {'blue_1': [0]*500, 'blue_2': [0]*500, 'red_1': [0]*500, 'red_2': [0]*500, '423': [0]*500}
         
         self.nu_blue_1_is, self.nu_blue_2_is, self.nu_red_1_is, self.nu_red_2_is = 0.0, 0.0, 0.0, 0.0
-        self.nu = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0}
+        self.nu = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0, '423': 0}
         self.nu_prev = self.nu.copy()
         
         self.nu_blue_1_want, self.nu_blue_2_want, self.nu_red_1_want, self.nu_red_2_want = 755.186770, 0.0, 0.0, 0.0
@@ -97,7 +98,7 @@ class laser_control(object):
         
         #--- LOCKING Parameters ----------------------------------------------#
         self.lock_blue_1 = False
-        self.lock_lasers = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False}
+        self.lock_lasers = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False, '423': False}
         self.lock_blue_2_flag, self.lock_red_1_flag, self.lock_red_2_flag = 1, 1, 1
         
         self.lock_blue_1_alpha, self.lock_blue_2_alpha, self.lock_red_1_alpha, self.lock_red_2_alpha = 20., 20., 20., 20.    
@@ -105,15 +106,18 @@ class laser_control(object):
         
         default_lock_pars = {'k_p': 20, 'k_i': 20}
         self.lock_pars = {'blue_1': default_lock_pars.copy(), 'blue_2': default_lock_pars.copy(),
-                          'red_1': default_lock_pars.copy(), 'red_2': default_lock_pars.copy()}
+                          'red_1': default_lock_pars.copy(), 'red_2': default_lock_pars.copy(),
+                          '423': default_lock_pars.copy()}
         
         self.lock_blue_1_Integral, self.lock_blue_2_Integral, self.lock_red_1_Integral, self.lock_red_2_Integral = 0.0, 0.0, 0.0, 0.0   
         
-        self.errors_previous = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0}
+        self.errors_previous = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0, '423': 0}
+
+        self.lock_polarity = {'blue_1': +1, 'blue_2': +1, '423': -1}
       
         #Lock error counters
         self.lock_blue_1_count, self.lock_blue_2_count, self.lock_red_1_count, self.lock_red_2_count = 0, 0, 0, 0
-        self.lock_count = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0}
+        self.lock_count = {'blue_1': 0, 'blue_2': 0, 'red_1': 0, 'red_2': 0, '423': 0}
         #---------------------------------------------------------------------#
 
         #--- SAWTOOTH Parameters ---------------------------------------------#
@@ -164,9 +168,15 @@ class laser_control(object):
         #---------------------------------------------------------------------#
         self.lock_red_1_piezo_volt_init = self.lock_red_1_piezo_volt_set
         self.lock_red_2_piezo_volt_init = self.lock_red_2_piezo_volt_set
-        
+
+        self.DAQ_423 = DAQ()
+
+        #DAQ_voltage = DAQ_423.get_voltage(5)
+        DAQ_voltage = 0
+
         self.piezo_volt = {'blue_1': self.lock_blue_1_piezo_volt_set, 'blue_2': self.lock_blue_2_piezo_volt_set,
-                           'red_1': self.lock_red_1_piezo_volt_set, 'red_2': self.lock_red_2_piezo_volt_set}
+                           'red_1': self.lock_red_1_piezo_volt_set, 'red_2': self.lock_red_2_piezo_volt_set,
+                           '423': DAQ_voltage}
         
         #---------------------------------------------------------------------#
         #---------------------------------------------------------------------#
@@ -207,6 +217,8 @@ class laser_control(object):
             self.lock_laser('blue_1')
         if self.lock_lasers['blue_2']:
             self.lock_laser('blue_2')
+        if self.lock_lasers['423']:
+            self.lock_laser('423')
 
     ###########################################################################
     ### FUNCTION TO GET THE WAVEMETER DATA ####################################
@@ -226,9 +238,11 @@ class laser_control(object):
         
         self.nu['blue_1'] = self.HF_WM.get_frequency(1)
         self.nu['blue_2'] = self.HF_WM.get_frequency(2)
+        self.nu['423'] = self.HF_WM.get_frequency(5)
         
         self.nu_history['blue_1'].append(self.nu['blue_1'])
         self.nu_history['blue_2'].append(self.nu['blue_2'])
+        self.nu_history['423'].append(self.nu['423'])
         
         self.nu_blue_1_was.append(self.nu_blue_1_is)
         self.nu_blue_2_was.append(self.nu_blue_2_is)
@@ -246,7 +260,7 @@ class laser_control(object):
     ###########################################################################
     #--- function to lock laser ---------------------------------------#
     def lock_laser_setup(self, laser_id):
-        if laser_id == 'blue_2':
+        if laser_id == '423':
             self.debug_flag = False
             self.debug_counter = 0
             
@@ -278,14 +292,16 @@ class laser_control(object):
         k_p = self.lock_pars[laser_id]['k_p']
         k_i = self.lock_pars[laser_id]['k_i']
         
+        polarity = self.lock_polarity[laser_id]
+
         #------------------------------------------------#
                    
         # proportional part -----------------------------#
-        P_part = k_p * (error - error_previous)
+        P_part = polarity*k_p * (error - error_previous)
         #------------------------------------------------#
         
         # integral part ---------------------------------#
-        I_part = k_i * error
+        I_part = polarity * k_i * error
         #------------------------------------------------#
 
         # prop + in + current set voltage ---------------#
@@ -294,7 +310,7 @@ class laser_control(object):
         
         
         # debug information -----------------------------#
-        if laser_id == 'blue_2':        # restricted to blue 2 for now
+        if laser_id == '423':        # restricted to blue 2 for now
             if self.debug_flag: 
                 if self.debug_counter == 0:
                     self.t0 = time.monotonic()
@@ -322,6 +338,15 @@ class laser_control(object):
         
         # restrict voltage jumps
         if -1 <= (P_part + I_part) <= 1:
+            if laser_id is '423':
+                if -1 < new_piezo_value < 1:
+                    pass
+                else:
+                    print(f'break lock for laser {laser_id}, scan voltage mod too large!')
+                    self.lock_lasers[laser_id] = False
+                    self.lock_count[laser_id] = 0
+                    return
+
             self.set_piezo(new_piezo_value, laser_id)
             self.piezo_volt[laser_id] = new_piezo_value
             self.lock_count[laser_id] = 0
@@ -341,6 +366,8 @@ class laser_control(object):
             self.T_DLC_blues.set_parameter('laser1:dl:pc:voltage-set', piezo_value)
         elif laser_id == 'blue_2':
             self.T_DLC_blues.set_parameter('laser2:dl:pc:voltage-set', piezo_value)
+        elif laser_id == '423':
+            self.DAQ_423.set_voltage(5, piezo_value)
         
         
     def lock_laser_on(self, laser_id):
@@ -357,147 +384,7 @@ class laser_control(object):
         self.lock_lasers[laser_id] = False
     #-------------------------------------------------------------------------#
     
-    
-    
-    #--- function to smoothley detune laser blue 1 ---------------------------#
-    def f_smooth_change_laser_blue_1(self):
-        '''
-            function to smoothley tune laser blue 1 between two frequencies.
-            takes nu_start and nu_stop, and the time delay in between. stepsize
-            is fixed to 1MHz.
-            
-            the function first creates a list with the intermediate frequency
-            values and the sleep time in between the steps. then it updates the
-            wanted frequency using the set point frequency of the lock, and
-            waits for the duration of the sleep time.
-        '''
-        
-        laser_id = 'blue_1'
-        
-        nu_start_MHz = int(self.nu[laser_id] * 10**6)
-        nu_stop_MHz = int(self.nu_blue_1_smooth_want * 10**6)
-        nu_incr_MHz = int(self.nu_smooth_increment * 10**6)
-        delta_t = self.nu_blue_1_smooth_delta_t
-        
-        if nu_start_MHz < nu_stop_MHz:
-            nu_list_MHz = np.arange(nu_start_MHz + nu_incr_MHz, nu_stop_MHz + nu_incr_MHz, nu_incr_MHz)
-        elif nu_start_MHz > nu_stop_MHz:
-            nu_list_MHz = np.arange(nu_stop_MHz, nu_start_MHz + nu_incr_MHz, nu_incr_MHz)
-            nu_list_MHz = nu_list_MHz[::-1]
-            
-        nu_list = nu_list_MHz/10**6
-        
-        t_increment = delta_t/float(len(nu_list))
-        
-        for i in range(len(nu_list)):
-            
-            if self.nu_blue_1_smooth_flag == 0:
-                self.nu_setpoint[laser_id] = nu_list[i]
-                                
-                time.sleep(t_increment)
-                
-            else:
-                break
-    #-------------------------------------------------------------------------#  
-        
-    #--- start thread calling function to smoothley detune laser blue 1 ------#
-    def smooth_change_laser_blue_1_start(self):
-        '''
-            function which starts the thread with the function of the smooth
-            change of the frequency for laser blue 1
-        '''
-        
-        print('smooth change laser blue 1 STARTED')
-        
-        self.nu_blue_1_smooth_flag = 0
-
-        thread_smooth_change_blue_1 = threading.Thread(target = self.f_smooth_change_laser_blue_1)         
-        thread_smooth_change_blue_1.start()
-    #-------------------------------------------------------------------------#
-
-    #--- start thread calling function to smoothley detune laser blue 1 ------#
-    def smooth_change_laser_blue_1_stop(self):
-        '''
-            function which terminates the thread with the function of the
-            smooth change of the frequency for laser blue 1
-        '''
-        
-        print('smooth change laser blue 1 STOPPED')
-        
-        self.nu_blue_1_smooth_flag = 1
-    #-------------------------------------------------------------------------#        
-    ###########################################################################
-    ###########################################################################
-    ###########################################################################
-    
-    
-    
-    
-    
-    
-    
-    #--- function to smoothley detune laser blue 1 ---------------------------#
-    def f_smooth_change_laser_blue_2(self):
-        '''
-            for explanation see same function for laser blue 1
-        '''
-        
-        laser_id = 'blue_2'
-        
-        nu_start_MHz = int(self.nu[laser_id] * 10**6)
-        nu_stop_MHz = int(self.nu_blue_2_smooth_want * 10**6)
-        nu_incr_MHz = int(self.nu_smooth_increment * 10**6)
-        delta_t = self.nu_blue_2_smooth_delta_t
-        
-        if nu_start_MHz < nu_stop_MHz:
-            nu_list_MHz = np.arange(nu_start_MHz + nu_incr_MHz, nu_stop_MHz + nu_incr_MHz, nu_incr_MHz)
-        elif nu_start_MHz > nu_stop_MHz:
-            nu_list_MHz = np.arange(nu_stop_MHz, nu_start_MHz + nu_incr_MHz, nu_incr_MHz)
-            nu_list_MHz = nu_list_MHz[::-1]
-            
-        nu_list = nu_list_MHz/10**6
-        
-        t_increment = delta_t/float(len(nu_list))
-        
-        for i in range(len(nu_list)):
-            
-            if self.nu_blue_2_smooth_flag == 0:
-            
-                self.nu_setpoint[laser_id] = nu_list[i]
-                                
-                time.sleep(t_increment)
-                
-            else:
-                break
-    #-------------------------------------------------------------------------#  
-        
-    #--- start thread calling function to smoothley detune laser blue 1 ------#
-    def smooth_change_laser_blue_2_start(self):
-        '''
-            for explanation see same function for laser blue 1
-        '''
-        
-        print('smooth change laser blue 2 STARTED')
-        
-        self.nu_blue_2_smooth_flag = 0
-
-        thread_smooth_change_blue_2 = threading.Thread(target = self.f_smooth_change_laser_blue_2)         
-        thread_smooth_change_blue_2.start()
-    #-------------------------------------------------------------------------#
-
-    #--- start thread calling function to smoothley detune laser blue 1 ------#
-    def smooth_change_laser_blue_2_stop(self):
-        '''
-            for explanation see same function for laser blue 1
-        '''
-        
-        print('smooth change laser blue 2 STOPPED')
-        
-        self.nu_blue_2_smooth_flag = 1
-    #-------------------------------------------------------------------------# 
-    ###########################################################################
-    ###########################################################################
-    ###########################################################################
+  
 
 
     ###########################################################################
@@ -789,102 +676,3 @@ class laser_control(object):
     ###########################################################################
     ###########################################################################
 
-
-
-    ###########################################################################
-    ###########################################################################
-    ###########################################################################
-    #--- function prepare lists for sawtooth detuning laser blue 1 -----------#
-    def f_prepare_sawtooth_laser_blue_1_and_2(self):
-        '''
-            this function takes the initial and detuned (target) values for the
-            frequencies of the two blue lasers, and the two timesteps delta_t1
-            and delta_t2 which characterise the time to detune and the time to
-            come back to the starting frequency
-        '''
-        
-        nu1_init_MHz = self.sawtooth_nu_blue_1_init
-        nu1_detuned_MHz = self.sawtooth_nu_blue_1_detuned
-        nu2_init_MHz = self.sawtooth_nu_blue_2_init
-        nu2_detuned_MHz = self.sawtooth_nu_blue_2_detuned
-        
-        delta_t1 = self.sawtooth_delta_t1
-        delta_t2 = self.sawtooth_delta_t2
-        
-        t_incr = self.sawtooth_t_incr
-        
-        total_reps = self.sawtooth_total_reps
-        
-
-        delta_t1_list = np.arange(0.00, delta_t1 + t_incr, t_incr)
-        delta_t2_list = np.arange(delta_t1 + t_incr, delta_t1 + delta_t2 + t_incr, t_incr)
-        
-        nu1_t1_list = np.linspace(nu1_init_MHz, nu1_detuned_MHz, len(delta_t1_list))
-        nu1_t2_list = np.linspace(nu1_detuned_MHz, nu1_init_MHz, len(delta_t2_list))
-        
-        nu2_t1_list = np.linspace(nu2_init_MHz, nu2_detuned_MHz, len(delta_t1_list))
-        nu2_t2_list = np.linspace(nu2_detuned_MHz, nu2_init_MHz, len(delta_t2_list))
-
-        delta_t_list = np.concatenate([delta_t1_list, delta_t2_list])
-        nu1_list = np.concatenate([nu1_t1_list, nu1_t2_list])
-        nu2_list = np.concatenate([nu2_t1_list, nu2_t2_list])
-        
-        t_tot = []
-        nu1_tot = []
-        nu2_tot = []
-        for i in range(total_reps):
-            temp_delta_t_list = delta_t_list + i*(delta_t1+delta_t2+t_incr)
-            temp_nu1_list = nu1_list[:]
-            temp_nu2_list = nu2_list[:]
-            
-            t_tot.append(temp_delta_t_list)
-            nu1_tot.append(temp_nu1_list)
-            nu2_tot.append(temp_nu2_list)
-            
-        self.sawtooth_t_total = np.concatenate(t_tot)
-        self.sawtooth_nu1_total = np.concatenate(nu1_tot)
-        self.sawtooth_nu2_total = np.concatenate(nu2_tot)
-    #-------------------------------------------------------------------------#
-
-
-
-    #--- function prepare lists for sawtooth detuning laser blue 1 -----------#
-    def f_sawtooth_laser_blue_1_and_2(self):
-    
-        t_list = self.sawtooth_t_total
-        nu_1_list = self.sawtooth_nu1_total
-        nu_2_list = self.sawtooth_nu2_total
-        
-        sleep_time = t_list[1] - t_list[0]
-
-        for i in range(len(t_list)):
-            if self.sawtooth_flag == 0:
-                self.nu_setpoint['blue_1'] = nu_1_list[i]
-                self.nu_setpoint['blue_2'] = nu_2_list[i]
-                time.sleep(sleep_time)
-            else:
-                self.sawtooth_flag = 1
-                break
-    #-------------------------------------------------------------------------#
-
-    #--- start thread calling function to sawtooth lasers 1 and 2 ------------#        
-    def sawtooth_laser_blue_1_and_2_on(self):
-        
-        print('sawtooth laser blue 1 and 2 turned ON')
-        
-        self.sawtooth_flag = 0
-
-        thread_sawtooth = threading.Thread(target = self.f_sawtooth_laser_blue_1_and_2)         
-        thread_sawtooth.start()
-    #-------------------------------------------------------------------------#   
-        
-    #--- stop thread calling function to sawtooth lasers 1 and 2 -------------#    
-    def sawtooth_laser_blue_1_and_2_off(self):
-        
-        print('sawtooth laser blue 1 and 2 turned OFF')
-        
-        self.sawtooth_flag = 1
-    #-------------------------------------------------------------------------#
-    ###########################################################################
-    ###########################################################################
-    ###########################################################################

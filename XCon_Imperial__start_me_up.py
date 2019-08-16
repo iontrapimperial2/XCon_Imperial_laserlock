@@ -56,19 +56,30 @@ class window(Ui_XCon_Imperial):
         self.doubleSpinBox_lock_blue_2_k_p.setMaximum(params['lock']['blue_2']['k_p_max'])
         self.doubleSpinBox_lock_blue_2_k_i.setValue(params['lock']['blue_2']['k_i'])
         self.doubleSpinBox_lock_blue_2_k_i.setMaximum(params['lock']['blue_2']['k_i_max'])
+
+        self.doubleSpinBox_lock_423_k_p.setValue(params['lock']['423']['k_p'])
+        self.doubleSpinBox_lock_423_k_p.setMaximum(params['lock']['423']['k_p_max'])
+        self.doubleSpinBox_lock_423_k_i.setValue(params['lock']['423']['k_i'])
+        self.doubleSpinBox_lock_423_k_i.setMaximum(params['lock']['423']['k_i_max'])
         
         # Initialise dictionaries etc
         
         self.plots = {}
+
+        self.laser_ids = ['blue_1', 'blue_2', '423']
         
-        self.base_freqs = {'blue_1': self.doubleSpinBox_blue_1_base.value(), 'blue_2': self.doubleSpinBox_blue_2_base.value()}
-        self.offset_freqs = {'blue_1': self.doubleSpinBox_blue_1_offset.value(), 'blue_2': self.doubleSpinBox_blue_2_offset.value()}
-        self.setpoint_freqs = {'blue_1': self.base_freqs['blue_1']+self.offset_freqs['blue_1']*1e-6, 'blue_2':  self.base_freqs['blue_2']+self.offset_freqs['blue_2']*1e-6}
+        self.base_freqs = {'blue_1': self.doubleSpinBox_blue_1_base.value(), 'blue_2': self.doubleSpinBox_blue_2_base.value(),
+                           '423': self.doubleSpinBox_423_base.value()}
+        self.offset_freqs = {'blue_1': self.doubleSpinBox_blue_1_offset.value(), 'blue_2': self.doubleSpinBox_blue_2_offset.value(),
+                             '423': self.doubleSpinBox_423_offset.value()}
+        self.setpoint_freqs = {'blue_1': self.base_freqs['blue_1']+self.offset_freqs['blue_1']*1e-6, 'blue_2':  self.base_freqs['blue_2']+self.offset_freqs['blue_2']*1e-6,
+                               '423': self.base_freqs['423']+self.offset_freqs['423']*1e-6}
         
-        self.smooth_change_flags = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False}
+        self.smooth_change_flags = {'blue_1': False, 'blue_2': False, 'red_1': False, 'red_2': False, '423': False}
         
         self.smooth_change_params_blue_1 = {'initial offset': 0, 'final offset': 10, 'change time': 1, 'start time': 0}
-        self.smooth_change_params = {'blue_1': self.smooth_change_params_blue_1.copy(), 'blue_2': self.smooth_change_params_blue_1.copy()}
+        self.smooth_change_params = {'blue_1': self.smooth_change_params_blue_1.copy(), 'blue_2': self.smooth_change_params_blue_1.copy(),
+                                     '423': self.smooth_change_params_blue_1.copy()}
         
         self.sawtooth_flag = False
         self.sawtooth_stop_flag = False
@@ -125,13 +136,40 @@ class window(Ui_XCon_Imperial):
         self.pushButton_smooth_change_laser_blue_2_start.clicked.connect(self.start_smooth_scan)
         self.pushButton_smooth_change_laser_blue_2_stop.clicked.connect(self.stop_smooth_scan)
         
-        self.pushButton_set_base_blue_1.clicked.connect(self.set_base)
+        self.pushButton_set_base_blue_2.clicked.connect(self.set_base)
         
         self.doubleSpinBox_blue_2_base.valueChanged.connect(self.base_freq_changed)        
         self.doubleSpinBox_blue_2_offset.valueChanged.connect(self.offset_freq_changed)
         
         self.doubleSpinBox_lock_blue_2_k_p.valueChanged.connect(self.k_p_changed)
         self.doubleSpinBox_lock_blue_2_k_i.valueChanged.connect(self.k_i_changed)
+
+        #---------------------------------------------------------------------#
+        #--- PLOTS, PUSH BUTTONS FOR LASER 423 -----------------#
+        #---------------------------------------------------------------------#        
+        self.plots['423'] = pg.PlotWidget(name = 'widget_plot_nu_423')
+        self.plots['423'].setBackground(background = brush_background)
+        self.plots['423'].setLabel('left', 'nu', units = '[THz]', **labelstyle_L)
+        self.plots['423'].setLabel('bottom', 'time', units = '', **labelstyle_L)
+        self.plots['423'].showGrid(x = True, y = True)
+        
+        self.verticalLayout_nu_laser_423.addWidget(self.plots['423'])
+        #---------------------------------------------------------------------#
+        self.label_423_setpoint.setText(f'{self.setpoint_freqs["423"]:.7f}')
+        
+        self.pushButton_lock_laser_423_on.clicked.connect(self.lock_laser_on)
+        self.pushButton_lock_laser_423_off.clicked.connect(self.lock_laser_off)
+        
+        self.pushButton_smooth_change_laser_423_start.clicked.connect(self.start_smooth_scan)
+        self.pushButton_smooth_change_laser_423_stop.clicked.connect(self.stop_smooth_scan)
+        
+        self.pushButton_set_base_423.clicked.connect(self.set_base)
+        
+        self.doubleSpinBox_423_base.valueChanged.connect(self.base_freq_changed)        
+        self.doubleSpinBox_423_offset.valueChanged.connect(self.offset_freq_changed)
+        
+        self.doubleSpinBox_lock_423_k_p.valueChanged.connect(self.k_p_changed)
+        self.doubleSpinBox_lock_423_k_i.valueChanged.connect(self.k_i_changed)
 
         #---------------------------------------------------------------------#
         #--- PLOTS, PUSH BUTTONS FOR LASER RED 1 ------------------#
@@ -233,10 +271,10 @@ class window(Ui_XCon_Imperial):
     ###########################################################################           
     
     def get_spinBox(self, spinBox_name):
-        return self.tab_3.findChild(QtWidgets.QDoubleSpinBox, spinBox_name)
+        return self.tabWidget.findChild(QtWidgets.QDoubleSpinBox, spinBox_name)
     
     def get_label(self, label_name):
-        return self.tab_3.findChild(QtWidgets.QLabel, label_name)
+        return self.tabWidget.findChild(QtWidgets.QLabel, label_name)
     
     ###########################################################################
     def lock_laser_on(self):
@@ -327,6 +365,7 @@ class window(Ui_XCon_Imperial):
     def update_plots(self):
         self.update_laser_gui('blue_1')
         self.update_laser_gui('blue_2')
+        self.update_laser_gui('423')
         self.t_dependent_updates_laser_red_1()
         self.t_dependent_updates_laser_red_2()
     
@@ -387,7 +426,11 @@ class window(Ui_XCon_Imperial):
         
         self.setpoint_freqs['blue_2'] = self.base_freqs['blue_2']+self.offset_freqs['blue_2']*1e-6
         self.label_blue_2_setpoint.setText(f'{self.setpoint_freqs["blue_2"]:.7f}')
-        lc.nu_setpoint['blue_2'] = self.setpoint_freqs['blue_2']        
+        lc.nu_setpoint['blue_2'] = self.setpoint_freqs['blue_2']
+
+        self.setpoint_freqs['423'] = self.base_freqs['423']+self.offset_freqs['423']*1e-6
+        self.label_423_setpoint.setText(f'{self.setpoint_freqs["423"]:.7f}')
+        lc.nu_setpoint['423'] = self.setpoint_freqs['423']
         
         
         
